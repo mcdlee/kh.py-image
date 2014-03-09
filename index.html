@@ -1,0 +1,283 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Python 處理醫學影像 - 以 SPECT 為例</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=792, user-scalable=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<link rel="stylesheet" href="lib/shower/themes/ribbon/styles/screen.css">
+	<link rel="stylesheet" href="lib/csshake.min.css">
+	    	<style type="text/css" media="all">
+	        section.slide p.source {
+            		color: #000;
+            		position: absolute;
+            		bottom: 10px;
+            		right: 10px;
+            		text-align: right;
+            		font-size: 0.8em;
+            		margin: 0px;
+        	}   
+        	section.slide p.source a {
+            		color: #000;
+        	}
+        	table.clean td img {
+            		vertical-align: top;
+        	}
+        	table.clean td {
+            		background: none;
+        	}
+			section.slide.cover h2{
+				color: #000;
+				font-size: 70 px;
+				text-align:center;
+				background-color: rgba(250, 250, 250, 0.5);
+			}
+        
+			/* two column slides */
+			section.slide.twocol div.left {
+				width: 	48%;
+				float: left;
+			}
+			section.slide.twocol div.right {
+				width: 48%;
+				float: right;
+			}
+			section.slide.twocol-ll div.left {
+				width: 65%;
+				float: left;
+			}
+			section.slide.twocol-ll div.right {
+				width: 35%;
+				float: right;
+			}
+			section.slide.twocol-lr div.left {
+				width: 35%;
+				float: left;
+			}
+			section.slide.twocol-lr div.right {
+				width: 65%;
+				float: right;
+			}
+    		</style>
+		<link rel="stylesheet" href="lib/highlight/styles/default.css">
+		<script src="lib/highlight/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body class="list">
+	<header class="caption">
+		<h1>Python 處理醫學影像 - 以 SPECT 為例</h1>
+		<p>2014-03-10 Kaohsiung.py</p>
+	</header>
+	<section class="slide cover" id="Cover"><div>
+		<h2>Python 處理醫學影像 - 以 <span class="shake">SPECT</span> 為例</h2>
+		<p>Department of Nuclear Medicine, Kaohsiung Veterans General Hospital<br /> <a href="http://www.mcdlee.tw">Sin-di Lee</a></p>
+		<p class="source">Background picture: Stamen / Map data: OSM and its contributors</p>
+		<img src="pics/cover.png">
+		<!--
+			To apply styles to the certain slides
+			set slide ID to get needed elements
+			-->
+		<style>
+			#Cover h2 {
+				margin:80px 0 0;
+				}
+			#Cover p {
+				margin:10px 0 0;
+				text-align:center;
+				color:#000;
+				font-style:italic;
+				font-size:20px;
+				}
+			#Cover p a {
+				color:#000;
+				}
+		</style>
+	</div></section>
+	<section class="slide shout"><div>
+	<h2>李昕迪 / mcdlee</h2>
+	</div></section>
+	<section class="slide"><div>
+	<h2>Outline</h2>
+	<ul>
+		<li class="next">核子醫學是什麼？</li>
+		<li class="next">簡介一些基礎知識</li>
+		<li class="next">SPECT 成像原理</li>
+		<li class="next">目前用 Python <mark>土炮</mark>的成果</li></ul>
+	</div></section>
+	<section class="slide"><div>
+	<h2>版權聲明</h2>
+	<ul>
+		<li>除另聲明，本投影片以 CC-BY 3.0+ 釋出</li>
+		<li>Demo 的影像著作權為<strong>高雄榮民總醫院核子醫學部</strong>所有</li></ul>
+	</div></section>
+	<section class="slide"><div>
+	<h2>核子醫學是什麼？</h2>
+	<ul>
+		<li class="next">利用放射性同位素診斷或治療疾病的學門。<ul>
+			<li class="next">治療：碘-131 治療甲狀腺亢進</li>
+			<li class="next">體內診斷：鎝-99m 甲基二磷酸 (Tc-99m MDP) 造影診斷骨骼病變</li>
+			<li class="next">體外診斷：利用碘-125 標誌抗體 (I-125 labeled antibody) 測量特定蛋白質濃度</li></ul></li>
+		<li class="next">未來展望：協助其他藥物開發，例如評估藥物動力學</li></ul>
+	</div></section>
+	<section class="slide shout"><div>
+	<h2>今天的重點是<span class="shake">影像</span></h2>
+	</div></section>
+	<section class="slide"><div>
+	<h2>Nuclear medicine imaging</h2>
+	<ul>
+		<li><a href="http://en.wikipedia.org/wiki/Radiopharmaceutical">放射性藥物</a> (Radiopharmaceutical)</li>
+		<li>2D imaging<ul>
+			<li><a href="http://en.wikipedia.org/wiki/Scintigraphy">閃爍攝影</a> (Scintigraphy), Gamma camera</li>
+			<li>老祖宗：<a href="http://en.wikipedia.org/wiki/Rectilinear_scanner">Rectilinear scanner</a></li>
+			<li>明日之星：<a href="http://en.wikipedia.org/wiki/Cadmium_zinc_telluride">Semiconductor radiation detector</a></li></ul></li>
+		<li>3D imaging<ul>
+			<li><a href="http://en.wikipedia.org/wiki/Single_photon_emission_computed_tomography">Single photon emission computed tomography</a> (SPECT)</li>
+			<li><a href="http://en.wikipedia.org/wiki/Positron_emission_tomography">正子造影</a> (Positron emission tomography, PET)</li></ul></li> </ul>
+	</div></section>
+	<section class="slide"><div>
+	<h2>以心肌血流灌注造影為例</h2>
+	<ul>
+		<li>放射性藥物：Tl-201 或 Tc-99m MIBI</li>
+		<li>理論上有百分之一的劑量會均勻的分布在心肌 (以左心室為主)</li>
+		<li>若心臟冠狀動脈有相對供應不足，影像上會呈現缺損</li>
+		<li>影像收集方式以 SPECT 為主流</li></ul>
+	</div></section>
+	<section class="slide"><div>
+	<h2>Gamma camera</h2>
+	<img src="pics/fig1.png" width="85%"/>
+	<p class="source"><a href="http://en.wikipedia.org/wiki/File:Gamma_camera_cross_section.PNG">Wikipedia</a>, CC-BY-SA 3.0</p>
+	</div></section>
+	<section class="slide twocol"><div>
+	<div class="left"><p>64個 projections 中第1張</p><img src="pics/demo_projection.png" width="90%"/></div>
+	<div class="right"><p>64個 projections 中第16張</p><img src="pics/demo_projection2.png" width="90%" /></div>
+	<p class="source">高雄榮民總醫院核子醫學部 Phantom study</p>
+	</div></section>
+	<section class="slide"><div>
+	<h2>剛剛的 source code</h2>
+	<pre class="language-python">
+		<code class="python">import dicom</code>
+		<code class="python">import pylab</code>
+		<code class="python">import numpy as np</code>
+		<code class="python">ds = dicom.read_file("img.dcm")</code>
+		<code class="python">pylab.imshow(ds.pixel_array[0,:,:])</code>
+		<code class="python">pylab.show()</code>
+	</pre>
+	</div></section>
+	<section class="slide"><div>
+	<h2>Computed tomography 影像重建</h2>
+	<ul>
+		<li>(Filtered) back projection</li>
+		<li>Iterative method</li></ul>
+	</div></section>
+	<section class="slide twocol"><div>
+	<h2>Sinogram</h2>
+	<img src="pics/demo_sinogram.png" width="50%"/>
+	</div>
+	<p class="source">高雄榮民總醫院核子醫學部 Phantom study</p>
+	</div></section>
+	<section class="slide"><div>
+	<h2>Sinogram - code</h2>
+	<pre class="language-python">
+		<code class="python">import dicom</code>
+		<code class="python">import pylab</code>
+		<code class="python">import numpy as np</code>
+		<code class="python">ds = dicom.read_file("img.dcm")</code>
+		<code class="python">pylab.imshow(ds.pixel_array[:,30,:])</code>
+		<code class="python">pylab.show()</code> 
+	</pre>	
+	</div></section>
+	<section class="slide"><div>
+	<h2>Filtered back projection</h2>
+	<img src="pics/demo_preFBP.png" width="45%"/> <img src="pics/demo_FBP.png" width="45%"/>
+	<p class="source">高雄榮民總醫院核子醫學部 Phantom study</p>
+	</div></section>
+	<section class="slide"><div>
+	<h2>Filtered back projection - code</h2>
+	<pre class="language-python">
+		<code class="python">import dicom</code>
+		<code class="python">import pylab</code>
+		<code class="python">from skimage.transform import <a href="http://scikit-image.org/docs/dev/auto_examples/plot_radon_transform.html">iradon</a></code>
+		<code class="python">import numpy as np</code>
+		<code class="python">ds = dicom.read_file("img.dcm")</code>
+		<code class="python">sinogram = numpy.transpose(ds.pixel_array[:,35,:])</code>
+		<code class="python">reconstruction = iradon(sinogram)</code>
+		<code class="python">pylab.imshow(reconstruction)</code>
+		<code class="python">pylab.show()</code>
+	</pre>
+	</div></section>
+	<section class="slide"><div>
+	<pre class="language-python">
+		<code class="python">array = ds.pixel_array</code>
+		<code class="python">recon_3d = numpy.zeros((64,64,64))</code>
+		<code class="python"> </code>
+		<code class="python">for i in range(0,63):</code>
+		<code class="python">	recon_3d[i,:,:] = 
+		iradon(np.transpose(array[:,i,:]), output_size=64)</code>
+	</pre>
+	</div></section>
+	<section class="slide twocol"><div>
+	<h2>某 coronary view</h2>
+	<div class="left"><img src="pics/demo_coronary.png" width="90%" /></div>
+	<div class="right">
+	<pre class="language-python">
+		<code class="python">pylab.imshow(recon_3d[:,32,:])</code>
+		<code class="python">pylab.show()</code>
+	</pre></div>
+	<p class="source">高雄榮民總醫院核子醫學部 Phantom study</p>
+	</div></section>
+	<section class="slide twocol"><div>
+	<h2>某 sagital view</h2>
+	<div class="left"><img src="pics/demo_sagital.png" width="90%" /></div>
+	<div class="right">
+	<pre class="language-python">
+		<code class="python">pylab.imshow(recon_3d[:,:,30])</code>
+		<code class="python">pylab.show()</code>
+	</pre></div>
+	<p class="source">高雄榮民總醫院核子醫學部 Phantom study</p>
+	</div></section>
+	<section class="slide"><div>
+	<h2>其實 dicom 還有記錄很多資訊</h2>
+	<pre class="language-python">
+		<code class="python">ds.dir # 呈現所有欄位</code>
+		<code class="python">ds.PixelSpacing # pixel size</code>
+		<code class="python">pixel_size= ds.PixelSpacing[1]/10 # read pixel size</code>
+		<code class="python">pixel_volume= pixel_size**3 </code>
+	</pre>
+	</div></section>
+	<section class="slide"><div>
+	<h2>計算超過某 threshold 的體積</h2>
+	<pre class="language-python">
+		<code class="python">ROI = np.zeros((64,64,64)) # create a blank ROI array</code>
+		<code class="python">maximal = np.max(recon_3d) # 先讀最大值</code>
+		<code class="python">for i in range(0,63):</code>
+		<code class="python">	for j in range(0,63):</code>
+		<code class="python">		for k in range(0,63):</code>
+		<code class="python">			if recon_3d[i,j,k] > 0.5*maximal:</code>
+		<code class="python">				ROI[i,j,k]= 1</code>
+		<code class="python">np.sum(ROI[:,:,:])*pixel_volume</code>
+	</pre>
+	</div></section>
+	<section class="slide"><div>
+	<h2>今天沒講的</h2>
+	<ul>
+		<li>dicomdir 的使用方式</li></ul>
+	<h2>希望突破的</h2>
+	<ul>
+		<li>ROI segmentation (eg: gradient recognization)</li>
+		<li>numpy 3D array 呈現甚至互動的 GUI</li>
+		<li>Fusion imaging</li></ul>
+	</div></section>
+	<section class="slide shout"><div>
+	<h2 class="shake">Thank You</h2>
+	</div></section>
+	<p class="badge"><a href="https://github.com/shower/shower">Fork me on Github</a></p>
+	<!--
+		To hide progress bar from entire presentation
+		just remove “progress” element.
+		-->
+	<div class="progress"><div></div></div>
+	<script src="lib/shower/shower.min.js"></script>
+	<!-- Copyright 2013 Yours Truly, Famous Inc. -->
+	<!-- Photos by John Carey, fiftyfootshadows.net -->
+</body>
+</html>
